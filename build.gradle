@@ -1,0 +1,66 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.8.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+}
+
+group 'com.peterabyte'
+version '1.0.0-SNAPSHOT'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+def springBootVersion = '2.0.1.RELEASE'
+def springVersion = '5.1.9.RELEASE'
+def kohsukeGitHubVersion = '1.114'
+
+def springBootUserName = 'user'
+def springBootPassword = '1234'
+def serverPort = '11001'
+def debugPort = '11005'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    implementation {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+    testImplementation {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}
+
+dependencies {
+    testImplementation ("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
+    implementation ("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
+    implementation ("org.springframework.boot:spring-boot-starter-log4j2:$springBootVersion")
+    implementation ("org.springframework.boot:spring-boot-starter-actuator:$springBootVersion")
+    implementation ("org.springframework.boot:spring-boot-starter-thymeleaf:$springBootVersion")
+    implementation ("org.springframework.integration:spring-integration-groovy:$springVersion")
+    implementation ("org.kohsuke:github-api:$kohsukeGitHubVersion")
+}
+
+test {
+    useJUnit()
+
+    reports {
+        html.enabled = false
+        junitXml.enabled = true
+    }
+
+    testLogging {
+        events "PASSED", "STARTED", "FAILED", "SKIPPED"
+        exceptionFormat = "full"
+    }
+}
+
+bootRun {
+    sourceResources sourceSets.main
+    jvmArgs = [
+        "-Dserver.port=$serverPort",
+        "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$debugPort",
+        "-Dsecurity.user.name=$springBootUserName",
+        "-Dsecurity.user.password=$springBootPassword"
+    ]
+}
