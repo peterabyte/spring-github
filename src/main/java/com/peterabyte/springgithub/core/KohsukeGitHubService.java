@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class KohsukeGitHubService implements GitHubService {
@@ -26,17 +24,8 @@ public class KohsukeGitHubService implements GitHubService {
     }
 
     @Override
-    public List<GitHubRepository> getRepositories() {
-        try {
-            return gitHub.getMyself()
-                    .listRepositories()
-                    .toList()
-                    .stream()
-                    .map(GitHubRepository::build)
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new GitHubServiceException("Failed to get repositories! " + e.getMessage(), e);
-        }
+    public GitHubDirectory getDirectory(String repoName) {
+        return getDirectory(repoName, "");
     }
 
     @Override
@@ -46,7 +35,7 @@ public class KohsukeGitHubService implements GitHubService {
             if (repo == null) {
                 throw new GitHubServiceException(String.format("Failed to get repository '%s' when listing directory '%s'!", repoName, path));
             }
-            return GitHubDirectory.build(repo.getDirectoryContent(path));
+            return GitHubDirectory.build(path, repo.getDirectoryContent(path));
         } catch (IOException e) {
             throw new GitHubServiceException(String.format("Failed to get directory '%s' from repository '%s'! %s", path, repoName, e.getMessage()), e);
         }
